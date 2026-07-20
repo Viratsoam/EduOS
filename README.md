@@ -48,6 +48,14 @@ The first product milestone is a strong demo/MVP that proves the platform shape:
 
 The repository now contains the first working monorepo foundation and product demo.
 
+## Product Vision Video
+
+[![EduOS product vision](docs/demo/eduos-vision-cover.png)](https://viratsoam.github.io/EduOS/)
+
+The live demo shows the foundation we have built today. The [EduOS Product Vision Film](https://viratsoam.github.io/EduOS/) shows the complete end-to-end platform we are building: organization launch, roles and access, learning operations, grounded AI, live classrooms, and learning analytics in one connected system.
+
+The video is intentionally framed as a product vision, not a claim that every future capability is already shipped. It can be exported locally as a 62-second WebM from [the hosted video renderer](https://viratsoam.github.io/EduOS/).
+
 Built so far:
 
 - Next.js web app with a product demo dashboard
