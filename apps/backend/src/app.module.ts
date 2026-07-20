@@ -7,6 +7,7 @@ import { AuthModule } from "./modules/auth/auth.module";
 import { CoursesModule } from "./modules/courses/courses.module";
 import { HealthModule } from "./modules/health/health.module";
 import { OrganizationsModule } from "./modules/organizations/organizations.module";
+import { UsersModule } from "./modules/users/users.module";
 
 @Module({
   imports: [
@@ -17,6 +18,7 @@ import { OrganizationsModule } from "./modules/organizations/organizations.modul
     OrganizationsModule,
     AuthModule,
     CoursesModule,
+    UsersModule,
     AiModule,
   ],
   providers: [

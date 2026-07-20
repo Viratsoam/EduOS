@@ -1,7 +1,7 @@
 "use client";
 
 import { useMemo, useState, type FormEvent, type ReactNode } from "react";
-import type { OrganizationOnboardingStep } from "@eduos/types";
+import type { OrganizationOnboardingStep, SystemRole } from "@eduos/types";
 import { Badge, Button, MetricCard } from "@eduos/ui";
 import {
   Activity,
@@ -32,7 +32,7 @@ import {
   Video,
 } from "lucide-react";
 
-type Workspace = "overview" | "onboarding" | "courses" | "ai" | "live" | "analytics";
+type Workspace = "overview" | "onboarding" | "people" | "courses" | "ai" | "live" | "analytics";
 
 type DemoCourse = {
   aiStatus: "Indexed" | "Indexing" | "Needs material";
@@ -47,9 +47,19 @@ type DemoCourse = {
   tutorSessions: number;
 };
 
+type DemoMember = {
+  email: string;
+  lastActive: string;
+  name: string;
+  permissionCount: number;
+  role: SystemRole;
+  status: "Active" | "Invited" | "Suspended";
+};
+
 const workspaces: Array<{ id: Workspace; icon: ReactNode; label: string }> = [
   { id: "overview", icon: <Activity size={16} aria-hidden />, label: "Overview" },
   { id: "onboarding", icon: <ClipboardCheck size={16} aria-hidden />, label: "Onboarding" },
+  { id: "people", icon: <UsersRound size={16} aria-hidden />, label: "People" },
   { id: "courses", icon: <BookOpen size={16} aria-hidden />, label: "Courses" },
   { id: "ai", icon: <BrainCircuit size={16} aria-hidden />, label: "AI Tutor" },
   { id: "live", icon: <Video size={16} aria-hidden />, label: "Live Class" },
@@ -119,6 +129,33 @@ const initialCourses: DemoCourse[] = [
     subject: "Chemistry",
     title: "Chemistry Essentials",
     tutorSessions: 864,
+  },
+];
+
+const initialMembers: DemoMember[] = [
+  {
+    email: "admin@via.edu",
+    lastActive: "Today, 10:30",
+    name: "Vikas Soam",
+    permissionCount: 10,
+    role: "organization_owner",
+    status: "Active",
+  },
+  {
+    email: "physics@via.edu",
+    lastActive: "Today, 09:45",
+    name: "Ananya Sharma",
+    permissionCount: 6,
+    role: "teacher",
+    status: "Active",
+  },
+  {
+    email: "student.alpha@via.edu",
+    lastActive: "Today, 10:05",
+    name: "Aarav Mehta",
+    permissionCount: 1,
+    role: "student",
+    status: "Active",
   },
 ];
 
@@ -210,6 +247,7 @@ export default function HomePage() {
   const [signedIn, setSignedIn] = useState(false);
   const [aiPolicyReady, setAiPolicyReady] = useState(false);
   const [courseItems, setCourseItems] = useState<DemoCourse[]>(initialCourses);
+  const [memberItems, setMemberItems] = useState<DemoMember[]>(initialMembers);
   const currentWorkspaceLabel = useMemo(
     () => workspaces.find((item) => item.id === workspace)?.label ?? "Overview",
     [workspace],
@@ -332,6 +370,12 @@ export default function HomePage() {
                   onSignIn={() => setSignedIn(true)}
                   progress={onboardingProgress}
                   signedIn={signedIn}
+                />
+              ) : null}
+              {workspace === "people" ? (
+                <PeoplePanel
+                  members={memberItems}
+                  onInviteMember={(member) => setMemberItems((items) => [member, ...items])}
                 />
               ) : null}
               {workspace === "courses" ? (
@@ -528,6 +572,110 @@ function OnboardingPanel({
         >
           {completedSteps.includes("ai_policy") ? "AI policy ready" : "Approve AI policy"}
         </Button>
+      </div>
+    </section>
+  );
+}
+
+function PeoplePanel({
+  members,
+  onInviteMember,
+}: {
+  members: DemoMember[];
+  onInviteMember: (member: DemoMember) => void;
+}) {
+  const [name, setName] = useState("Riya Kapoor");
+  const [email, setEmail] = useState("riya.kapoor@via.edu");
+  const [role, setRole] = useState<SystemRole>("teacher");
+
+  function handleInviteMember(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+
+    const cleanName = name.trim();
+    const cleanEmail = email.trim();
+
+    if (!cleanName || !cleanEmail) {
+      return;
+    }
+
+    onInviteMember({
+      email: cleanEmail,
+      lastActive: "Invitation pending",
+      name: cleanName,
+      permissionCount: role === "admin" ? 10 : role === "teacher" || role === "assistant_teacher" ? 6 : 1,
+      role,
+      status: "Invited",
+    });
+
+    setName("");
+    setEmail("");
+    setRole("teacher");
+  }
+
+  return (
+    <section className="space-y-6">
+      <div className="rounded-md border border-zinc-200 bg-white p-4 shadow-sm">
+        <div className="flex flex-col gap-3 border-b border-zinc-200 pb-4 md:flex-row md:items-center md:justify-between">
+          <div>
+            <h2 className="text-base font-semibold">People and access</h2>
+            <p className="mt-1 text-sm text-zinc-500">Manage organization members, role assignments, and permission coverage.</p>
+          </div>
+          <Badge tone="green">{members.filter((member) => member.status === "Active").length} active</Badge>
+        </div>
+
+        <form className="mt-4 grid gap-3 xl:grid-cols-[1fr_1fr_0.75fr_auto]" onSubmit={handleInviteMember}>
+          <CourseInput label="Name" onChange={setName} value={name} />
+          <CourseInput label="Email" onChange={setEmail} value={email} />
+          <label className="grid gap-1 text-sm">
+            <span className="text-xs font-medium text-zinc-500">Role</span>
+            <select
+              className="h-10 min-w-0 rounded-md border border-zinc-300 bg-white px-3 text-sm text-zinc-950 outline-none transition focus:border-emerald-500 focus:ring-2 focus:ring-emerald-100"
+              onChange={(event) => setRole(event.target.value as SystemRole)}
+              value={role}
+            >
+              <option value="admin">Admin</option>
+              <option value="teacher">Teacher</option>
+              <option value="assistant_teacher">Assistant teacher</option>
+              <option value="student">Student</option>
+              <option value="parent">Parent</option>
+            </select>
+          </label>
+          <Button className="h-auto min-h-10 self-end" icon={<Plus size={16} aria-hidden />} type="submit">
+            Invite
+          </Button>
+        </form>
+      </div>
+
+      <div className="overflow-hidden rounded-md border border-zinc-200 bg-white shadow-sm">
+        <div className="grid grid-cols-[1.2fr_0.8fr_0.75fr_0.75fr] gap-3 border-b border-zinc-200 bg-zinc-50 px-4 py-3 text-xs font-semibold text-zinc-500 max-lg:hidden">
+          <span>Member</span>
+          <span>Role</span>
+          <span>Status</span>
+          <span>Permissions</span>
+        </div>
+        <div className="divide-y divide-zinc-200">
+          {members.map((member) => (
+            <div
+              className="grid gap-3 px-4 py-4 text-sm lg:grid-cols-[1.2fr_0.8fr_0.75fr_0.75fr] lg:items-center"
+              key={`${member.email}-${member.role}`}
+            >
+              <div className="min-w-0">
+                <p className="font-semibold text-zinc-950">{member.name}</p>
+                <p className="mt-1 break-words text-zinc-500">{member.email}</p>
+                <p className="mt-1 text-xs text-zinc-400">{member.lastActive}</p>
+              </div>
+              <div>
+                <Badge tone="blue">{formatRole(member.role)}</Badge>
+              </div>
+              <div>
+                <Badge tone={member.status === "Active" ? "green" : member.status === "Invited" ? "blue" : "red"}>
+                  {member.status}
+                </Badge>
+              </div>
+              <div className="text-zinc-600">{member.permissionCount} permissions</div>
+            </div>
+          ))}
+        </div>
       </div>
     </section>
   );
@@ -842,6 +990,13 @@ function CourseInput({
       />
     </label>
   );
+}
+
+function formatRole(role: SystemRole) {
+  return role
+    .split("_")
+    .map((part) => part.charAt(0).toUpperCase() + part.slice(1))
+    .join(" ");
 }
 
 function ProgressRow({ label, value }: { label: string; value: number }) {
