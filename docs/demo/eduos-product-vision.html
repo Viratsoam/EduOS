@@ -1,0 +1,349 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>EduOS Product Vision Video</title>
+    <style>
+      :root { color-scheme: dark; font-family: Inter, ui-sans-serif, system-ui, sans-serif; }
+      body { align-items: center; background: #101215; color: #f8fafc; display: flex; flex-direction: column; gap: 18px; justify-content: center; margin: 0; min-height: 100vh; padding: 24px; }
+      canvas { background: #111827; box-shadow: 0 24px 80px rgba(0, 0, 0, .46); height: auto; max-width: min(100%, 1280px); width: 100%; }
+      button { background: #18a870; border: 0; border-radius: 6px; color: #04130d; cursor: pointer; font: 700 14px/1 Inter, ui-sans-serif, system-ui, sans-serif; padding: 12px 18px; }
+      button:disabled { cursor: wait; opacity: .65; }
+      p { color: #a1a1aa; font-size: 13px; margin: 0; text-align: center; }
+    </style>
+  </head>
+  <body>
+    <canvas aria-label="EduOS product vision video preview" height="720" id="film" width="1280"></canvas>
+    <button id="export" type="button">Export WebM video</button>
+    <p id="status">Previewing a 62-second product vision film.</p>
+
+    <script>
+      const canvas = document.querySelector("#film");
+      const ctx = canvas.getContext("2d");
+      const exportButton = document.querySelector("#export");
+      const status = document.querySelector("#status");
+      const hero = new Image();
+      hero.src = "./eduos-vision-cover.png";
+
+      const W = canvas.width;
+      const H = canvas.height;
+      const duration = 62;
+      const fps = 30;
+      const colors = {
+        ink: "#0e1116",
+        paper: "#f8fafc",
+        muted: "#a1a1aa",
+        line: "#2a3140",
+        panel: "#151a23",
+        panelSoft: "#1c2330",
+        green: "#35d391",
+        greenSoft: "#bdf4d8",
+        blue: "#61a5ff",
+        violet: "#a895ff",
+        amber: "#ffc96b",
+        red: "#ff7a85",
+      };
+
+      function clamp(value, min = 0, max = 1) { return Math.max(min, Math.min(max, value)); }
+      function ease(value) { const t = clamp(value); return t * t * (3 - 2 * t); }
+      function fade(time, start, end, edge = 0.55) {
+        return ease(Math.min((time - start) / edge, (end - time) / edge, 1));
+      }
+      function rr(x, y, w, h, radius, fill, stroke) {
+        ctx.beginPath();
+        ctx.roundRect(x, y, w, h, radius);
+        if (fill) { ctx.fillStyle = fill; ctx.fill(); }
+        if (stroke) { ctx.strokeStyle = stroke; ctx.lineWidth = 1; ctx.stroke(); }
+      }
+      function text(value, x, y, size, color = colors.paper, weight = 500, align = "left") {
+        ctx.fillStyle = color;
+        ctx.font = `${weight} ${size}px Inter, ui-sans-serif, system-ui, sans-serif`;
+        ctx.textAlign = align;
+        ctx.textBaseline = "alphabetic";
+        ctx.fillText(value, x, y);
+      }
+      function label(value, x, y, color = colors.muted) {
+        ctx.font = "650 12px Inter, ui-sans-serif, system-ui, sans-serif";
+        ctx.fillStyle = color;
+        ctx.letterSpacing = "1.2px";
+        ctx.fillText(value.toUpperCase(), x, y);
+        ctx.letterSpacing = "0px";
+      }
+      function line(x1, y1, x2, y2, color = colors.line, width = 1) {
+        ctx.strokeStyle = color;
+        ctx.lineWidth = width;
+        ctx.beginPath(); ctx.moveTo(x1, y1); ctx.lineTo(x2, y2); ctx.stroke();
+      }
+      function pill(value, x, y, tone = "green") {
+        const bg = tone === "green" ? "#153f31" : tone === "blue" ? "#1d365a" : "#362d1c";
+        const color = tone === "green" ? colors.greenSoft : tone === "blue" ? "#cde1ff" : "#ffdd9f";
+        ctx.font = "650 11px Inter, ui-sans-serif, system-ui, sans-serif";
+        const width = ctx.measureText(value).width + 20;
+        rr(x, y, width, 25, 12, bg);
+        text(value, x + 10, y + 17, 11, color, 650);
+        return width;
+      }
+      function dot(x, y, color) { ctx.fillStyle = color; ctx.beginPath(); ctx.arc(x, y, 4, 0, Math.PI * 2); ctx.fill(); }
+      function progress(x, y, w, value, color = colors.green) {
+        rr(x, y, w, 8, 4, "#2a3140"); rr(x, y, w * value, 8, 4, color);
+      }
+      function iconCircle(x, y, color, symbol) {
+        ctx.fillStyle = color; ctx.beginPath(); ctx.arc(x, y, 18, 0, Math.PI * 2); ctx.fill();
+        text(symbol, x, y + 7, 18, "#08120e", 700, "center");
+      }
+      function shell(section, title, subtitle) {
+        ctx.fillStyle = colors.ink; ctx.fillRect(0, 0, W, H);
+        rr(30, 28, W - 60, H - 56, 18, "#11161f", "#263040");
+        rr(52, 50, 205, H - 100, 12, "#0b1018");
+        text("eduOS", 76, 89, 23, colors.paper, 760);
+        text("EDUCATION OS", 76, 108, 10, colors.muted, 650);
+        const nav = ["Overview", "Onboarding", "People", "Courses", "AI Tutor", "Live Class", "Analytics"];
+        nav.forEach((item, index) => {
+          const y = 152 + index * 48;
+          const active = item === section;
+          if (active) rr(67, y - 25, 175, 34, 7, "#223044");
+          dot(87, y - 8, active ? colors.green : "#596275");
+          text(item, 102, y - 3, 13, active ? colors.paper : "#a8b0bd", active ? 700 : 500);
+        });
+        text("Vikas International", 76, H - 86, 12, colors.paper, 650);
+        text("Tenant: VIA", 76, H - 66, 11, colors.muted, 500);
+        pill("Secure workspace", 76, H - 47, "green");
+        text(title, 290, 95, 26, colors.paper, 720);
+        text(subtitle, 290, 120, 13, colors.muted, 500);
+        pill("Product vision", 1012, 76, "blue");
+      }
+      function intro(time) {
+        ctx.fillStyle = "#0b0e13"; ctx.fillRect(0, 0, W, H);
+        if (hero.complete && hero.naturalWidth) {
+          const scale = Math.max(W / hero.naturalWidth, H / hero.naturalHeight);
+          const iw = hero.naturalWidth * scale;
+          const ih = hero.naturalHeight * scale;
+          ctx.globalAlpha = 0.82;
+          ctx.drawImage(hero, W - iw, (H - ih) / 2, iw, ih);
+          ctx.globalAlpha = 1;
+        }
+        const shade = ctx.createLinearGradient(0, 0, W * .75, 0);
+        shade.addColorStop(0, "rgba(8, 11, 16, 1)"); shade.addColorStop(.58, "rgba(8, 11, 16, .92)"); shade.addColorStop(1, "rgba(8, 11, 16, .06)");
+        ctx.fillStyle = shade; ctx.fillRect(0, 0, W, H);
+        const a = fade(time, 0, 7);
+        ctx.globalAlpha = a;
+        label("PRODUCT VISION", 88, 150, colors.green);
+        text("EduOS", 84, 239, 70, colors.paper, 760);
+        text("The operating system", 84, 292, 38, colors.paper, 650);
+        text("for education.", 84, 337, 38, colors.paper, 650);
+        text("One connected place for institutions, educators,", 88, 392, 18, "#d1d5db", 500);
+        text("learners, operations, and trusted AI.", 88, 419, 18, "#d1d5db", 500);
+        line(88, 476, 448, 476, colors.green, 3);
+        text("Built for the future of every learning organization.", 88, 508, 14, colors.muted, 500);
+        ctx.globalAlpha = 1;
+      }
+      function overview(time) {
+        shell("Overview", "The institution, in one view", "A single operating layer for learning, people, content, and outcomes.");
+        const cards = [["Learners", "12,480", colors.green], ["Active courses", "326", colors.blue], ["Live today", "42", colors.violet], ["Learning health", "87%", colors.amber]];
+        cards.forEach((card, i) => {
+          const x = 290 + i * 220;
+          rr(x, 160, 195, 112, 10, colors.panel, colors.line);
+          text(card[0], x + 16, 188, 12, colors.muted, 600);
+          text(card[1], x + 16, 231, 29, colors.paper, 720);
+          progress(x + 16, 249, 150, .42 + i * .12, card[2]);
+        });
+        rr(290, 296, 525, 315, 10, colors.panel, colors.line);
+        text("What is happening now", 312, 330, 16, colors.paper, 700);
+        [
+          ["08:10", "Teacher uploaded approved material", colors.blue],
+          ["08:19", "Knowledge base prepared for citations", colors.green],
+          ["10:45", "Assignments ready for review", colors.amber],
+          ["11:00", "Live class scheduled", colors.violet],
+        ].forEach((item, i) => {
+          const y = 370 + i * 54;
+          dot(327, y - 6, item[2]); text(item[0], 347, y, 12, colors.muted, 600); text(item[1], 420, y, 13, colors.paper, 600); line(312, y + 20, 790, y + 20);
+        });
+        rr(839, 296, 369, 315, 10, colors.panel, colors.line);
+        text("Launch readiness", 862, 330, 16, colors.paper, 700);
+        [["People and roles", .82], ["Learning setup", .68], ["Trusted AI", .74], ["Analytics", .59]].forEach((item, i) => {
+          const y = 382 + i * 56; text(item[0], 862, y, 13, colors.paper, 550); text(`${Math.round(item[1] * 100)}%`, 1168, y, 12, colors.muted, 650, "right"); progress(862, y + 14, 306, item[1], i === 0 ? colors.green : colors.blue);
+        });
+        chapter(time, "01", "A clear view of the entire institution");
+      }
+      function onboarding(time) {
+        shell("Onboarding", "Launch every organization with confidence", "Set the academic structure, roles, policies, and first learning experiences.");
+        rr(290, 160, 460, 450, 10, colors.panel, colors.line);
+        text("Organization setup", 314, 197, 18, colors.paper, 700);
+        text("A guided launch path for every school or institute.", 314, 222, 13, colors.muted, 500);
+        const items = ["Organization profile", "Admin team", "Role and access mapping", "Courses and batches", "AI policy and safeguards", "Launch review"];
+        items.forEach((item, i) => {
+          const y = 268 + i * 52;
+          const done = i < 5;
+          ctx.fillStyle = done ? colors.green : colors.blue; ctx.beginPath(); ctx.arc(333, y - 4, 14, 0, Math.PI * 2); ctx.fill();
+          text(done ? "✓" : "6", 333, y + 1, 13, "#07150e", 760, "center");
+          text(item, 365, y, 14, colors.paper, 600);
+          if (i < items.length - 1) line(333, y + 14, 333, y + 36, "#3b4554", 2);
+        });
+        rr(776, 160, 432, 204, 10, colors.panel, colors.line);
+        label("ORG PROFILE", 801, 196, colors.green);
+        text("Vikas International Academy", 801, 232, 19, colors.paper, 700);
+        text("Academic year: 2026-27", 801, 267, 13, colors.muted, 500);
+        text("Time zone: Asia/Kolkata", 801, 294, 13, colors.muted, 500);
+        pill("Ready to launch", 801, 316, "green");
+        rr(776, 388, 432, 222, 10, colors.panel, colors.line);
+        text("Built for every organization", 801, 425, 16, colors.paper, 700);
+        ["Schools and universities", "Coaching institutes", "Independent tutors", "Enterprise learning teams"].forEach((item, i) => { dot(807, 463 + i * 32, [colors.green, colors.blue, colors.violet, colors.amber][i]); text(item, 829, 468 + i * 32, 14, colors.paper, 550); });
+        chapter(time, "02", "A launch path designed around the institution");
+      }
+      function people(time) {
+        shell("People", "Every person has the right workspace", "Permission-first access for administrators, teachers, learners, and families.");
+        const roles = [["Administrator", "Runs the institution", "10 permissions", colors.green], ["Teacher", "Builds courses and learning", "6 permissions", colors.blue], ["Student", "Learns and progresses", "1 learning workspace", colors.violet], ["Parent", "Stays connected to progress", "Family view", colors.amber]];
+        roles.forEach((role, i) => {
+          const x = 290 + (i % 2) * 458; const y = 160 + Math.floor(i / 2) * 220;
+          rr(x, y, 430, 188, 11, colors.panel, colors.line);
+          iconCircle(x + 52, y + 54, role[3], ["A", "T", "S", "P"][i]);
+          text(role[0], x + 88, y + 49, 18, colors.paper, 700);
+          text(role[1], x + 88, y + 74, 13, colors.muted, 500);
+          pill(role[2], x + 28, y + 116, i === 0 ? "green" : "blue");
+          text("A tailored workspace, not a one-size-fits-all portal.", x + 28, y + 163, 12, "#c9d1dc", 500);
+        });
+        rr(290, 582, 888, 28, 6, "#153f31"); text("Organization data stays inside its own tenant boundary.", 734, 602, 12, colors.greenSoft, 650, "center");
+        chapter(time, "03", "People, permissions, and trusted access");
+      }
+      function courses(time) {
+        shell("Courses", "From curriculum to everyday learning", "Courses, batches, lessons, materials, assignments, and assessments stay connected.");
+        const courses = [["Physics Foundations", "JEE Alpha", "42 lessons", "428 learners", colors.green], ["Algebra Mastery", "Grade 10 Core", "36 lessons", "316 learners", colors.blue], ["Chemistry Essentials", "NEET Bridge", "28 lessons", "184 learners", colors.violet]];
+        courses.forEach((course, i) => {
+          const x = 290 + i * 298;
+          rr(x, 165, 274, 317, 11, colors.panel, colors.line);
+          rr(x + 18, 184, 238, 80, 8, i === 0 ? "#174636" : i === 1 ? "#183558" : "#2c2251");
+          text(course[0], x + 18, 298, 17, colors.paper, 700);
+          pill(course[1], x + 18, 317, "blue");
+          text(course[2], x + 18, 365, 13, colors.muted, 500); text(course[3], x + 18, 391, 13, colors.muted, 500);
+          progress(x + 18, 431, 238, [.74, .61, .48][i], course[4]);
+          text(["74% complete", "61% complete", "48% complete"][i], x + 18, 458, 12, colors.paper, 650);
+        });
+        rr(290, 512, 888, 96, 11, colors.panelSoft, colors.line);
+        text("One learning path", 315, 547, 14, colors.paper, 700);
+        ["Course", "Batch", "Lessons", "Resources", "Assignments", "Exams"].forEach((item, i) => {
+          const x = 470 + i * 114; rr(x, 530, 96, 38, 7, i === 5 ? "#174636" : "#263246"); text(item, x + 48, 554, 11, colors.paper, 650, "center"); if (i < 5) text("→", x + 105, 554, 14, colors.muted, 650);
+        });
+        chapter(time, "04", "Learning operations that stay in one flow");
+      }
+      function ai(time) {
+        shell("AI Tutor", "AI that teaches from approved material", "Every answer is grounded in course content, citations, and the organization’s policy.");
+        rr(290, 160, 560, 450, 11, colors.panel, colors.line);
+        pill("Grounded by policy", 316, 185, "green");
+        text("EduOS AI Tutor", 316, 242, 20, colors.paper, 720);
+        rr(316, 268, 490, 62, 9, "#263246"); text("Can you explain Faraday's law with an example?", 337, 306, 14, colors.paper, 500);
+        rr(316, 351, 490, 155, 9, "#173c30");
+        text("When magnetic flux through a circuit changes,", 338, 386, 14, colors.paper, 500);
+        text("an induced voltage appears. In this course’s coil", 338, 411, 14, colors.paper, 500);
+        text("experiment, moving the magnet changes that flux.", 338, 436, 14, colors.paper, 500);
+        text("Sources attached to this answer", 338, 477, 11, colors.greenSoft, 650);
+        rr(316, 532, 490, 48, 8, "#263246"); text("Ask from your approved learning material", 338, 562, 13, colors.muted, 500);
+        rr(876, 160, 332, 450, 11, colors.panel, colors.line);
+        text("Answer policy", 900, 202, 17, colors.paper, 700);
+        [["Approved course sources", colors.green], ["Citations for learner answers", colors.green], ["Brief refusal without context", colors.amber], ["Teacher-controlled knowledge base", colors.blue]].forEach((item, i) => { dot(906, 248 + i * 57, item[1]); text(item[0], 928, 253 + i * 57, 13, colors.paper, 550); });
+        line(900, 493, 1178, 493); text("Trust is not an add-on.", 900, 530, 18, colors.paper, 720); text("It is the product rule.", 900, 556, 18, colors.green, 720);
+        chapter(time, "05", "A tutor that knows what it is allowed to know");
+      }
+      function live(time) {
+        shell("Live Class", "Run the classroom, not five separate tools", "Live sessions bring attendance, questions, collaboration, and follow-up into the learning flow.");
+        rr(290, 160, 580, 450, 11, colors.panel, colors.line);
+        rr(314, 184, 532, 235, 9, "#0d1824");
+        ctx.fillStyle = "#1c3553"; ctx.fillRect(314, 184, 532, 235);
+        ctx.fillStyle = "#2e6c6a"; ctx.fillRect(314, 333, 532, 86);
+        text("Electromagnetic Induction", 340, 222, 20, colors.paper, 700);
+        text("Live class in progress", 340, 248, 13, "#d7e6ff", 500);
+        rr(340, 275, 164, 46, 7, "#172b42"); text("Flux direction poll", 354, 296, 12, colors.paper, 650); text("84% answered", 354, 313, 11, colors.muted, 500);
+        pill("LIVE", 766, 197, "green");
+        ["Attendance 36 / 38", "7 learner questions", "Session summary drafting"].forEach((item, i) => { rr(314 + i * 174, 447, 156, 62, 8, colors.panelSoft); text(item, 327 + i * 174, 475, 12, colors.paper, 650); text(["Present", "In queue", "AI assisted"][i], 327 + i * 174, 495, 11, colors.muted, 500); });
+        rr(896, 160, 312, 450, 11, colors.panel, colors.line);
+        text("After the class", 920, 202, 17, colors.paper, 700);
+        [["Session summary", "Ready for teacher review", colors.green], ["Attendance record", "Attached to the batch", colors.blue], ["Next lesson tasks", "Created from today’s activity", colors.violet], ["Weak-area signals", "Sent to analytics", colors.amber]].forEach((item, i) => { const y = 258 + i * 75; dot(926, y - 5, item[2]); text(item[0], 947, y, 13, colors.paper, 650); text(item[1], 947, y + 20, 11, colors.muted, 500); });
+        chapter(time, "06", "A classroom that continues after the call ends");
+      }
+      function analytics(time) {
+        shell("Analytics", "Turn learning signals into action", "See progress, engagement, attendance, and weak areas before they become outcomes.");
+        rr(290, 160, 580, 450, 11, colors.panel, colors.line);
+        text("Learning confidence by concept", 316, 202, 17, colors.paper, 700);
+        [["Vectors", .91, colors.green], ["Calculus", .76, colors.blue], ["Magnetism", .63, colors.violet], ["Algebra", .84, colors.green], ["Organic chemistry", .58, colors.amber]].forEach((item, i) => { const y = 255 + i * 55; text(item[0], 316, y, 13, colors.paper, 550); progress(456, y - 11, 300, item[1], item[2]); text(`${Math.round(item[1] * 100)}%`, 790, y, 12, colors.muted, 650, "right"); });
+        rr(896, 160, 312, 210, 11, colors.panel, colors.line);
+        text("At-risk learners", 920, 202, 16, colors.paper, 700); text("34", 920, 260, 40, colors.amber, 720); text("Need timely support", 920, 287, 12, colors.muted, 500); pill("Intervention ready", 920, 316, "green");
+        rr(896, 394, 312, 216, 11, colors.panel, colors.line);
+        text("What the educator sees", 920, 436, 16, colors.paper, 700);
+        ["Who needs help", "What concept is weak", "Which content is working", "Where to intervene next"].forEach((item, i) => { dot(926, 474 + i * 30, [colors.green, colors.blue, colors.violet, colors.amber][i]); text(item, 947, 479 + i * 30, 13, colors.paper, 550); });
+        rr(290, 535, 580, 75, 11, "#153f31"); text("Better signals create more personal learning journeys.", 580, 580, 16, colors.greenSoft, 700, "center");
+        chapter(time, "07", "Insight that leads directly to support");
+      }
+      function finale(time) {
+        ctx.fillStyle = "#0b0e13"; ctx.fillRect(0, 0, W, H);
+        if (hero.complete && hero.naturalWidth) {
+          const scale = Math.max(W / hero.naturalWidth, H / hero.naturalHeight);
+          const iw = hero.naturalWidth * scale; const ih = hero.naturalHeight * scale;
+          ctx.globalAlpha = .54; ctx.drawImage(hero, W - iw, (H - ih) / 2, iw, ih); ctx.globalAlpha = 1;
+        }
+        const shade = ctx.createLinearGradient(0, 0, W, 0); shade.addColorStop(0, "rgba(8, 11, 16, 1)"); shade.addColorStop(.75, "rgba(8, 11, 16, .78)"); shade.addColorStop(1, "rgba(8, 11, 16, .16)"); ctx.fillStyle = shade; ctx.fillRect(0, 0, W, H);
+        const a = fade(time, 55, 62); ctx.globalAlpha = a;
+        label("THE EDUCATION OPERATING SYSTEM", 88, 168, colors.green);
+        text("Build the future of", 84, 246, 52, colors.paper, 720);
+        text("learning in one place.", 84, 307, 52, colors.paper, 720);
+        text("From the first organization setup to a learner’s next best step,", 88, 366, 17, "#d1d5db", 500);
+        text("EduOS brings the whole journey together.", 88, 393, 17, "#d1d5db", 500);
+        pill("Hackathon product vision", 88, 440, "green");
+        text("EduOS", 88, 555, 22, colors.paper, 760); text("AI-native. Multi-tenant. Built for education.", 88, 583, 14, colors.muted, 500);
+        ctx.globalAlpha = 1;
+      }
+      function chapter(time, number, value) {
+        const a = fade(time, 0, 1.3);
+        ctx.globalAlpha = a;
+        text(number, 290, 664, 12, colors.green, 750);
+        text(value, 324, 664, 13, colors.muted, 550);
+        ctx.globalAlpha = 1;
+      }
+      function render(time) {
+        if (time < 7) intro(time);
+        else if (time < 14) overview(time - 7);
+        else if (time < 21) onboarding(time - 14);
+        else if (time < 28) people(time - 21);
+        else if (time < 35) courses(time - 28);
+        else if (time < 43) ai(time - 35);
+        else if (time < 50) live(time - 43);
+        else if (time < 55) analytics(time - 50);
+        else finale(time);
+      }
+      let previewStart = performance.now();
+      function preview(now) { render(((now - previewStart) / 1000) % duration); requestAnimationFrame(preview); }
+      requestAnimationFrame(preview);
+
+      exportButton.addEventListener("click", () => {
+        if (!window.MediaRecorder) { status.textContent = "This browser cannot export WebM video."; return; }
+        exportButton.disabled = true;
+        status.textContent = "Rendering video locally. This takes about one minute.";
+        const stream = canvas.captureStream(fps);
+        const recorder = new MediaRecorder(stream, { mimeType: "video/webm;codecs=vp9", videoBitsPerSecond: 5_000_000 });
+        const chunks = [];
+        recorder.addEventListener("dataavailable", (event) => { if (event.data.size) chunks.push(event.data); });
+        recorder.addEventListener("stop", () => {
+          const video = new Blob(chunks, { type: "video/webm" });
+          const url = URL.createObjectURL(video);
+          const link = document.createElement("a");
+          link.href = url; link.download = "eduos-product-vision.webm"; link.click();
+          window.setTimeout(() => URL.revokeObjectURL(url), 10_000);
+          stream.getTracks().forEach((track) => track.stop());
+          exportButton.disabled = false;
+          status.textContent = "Video export complete.";
+        });
+        recorder.start();
+        let frame = 0;
+        const maxFrames = duration * fps;
+        const track = stream.getVideoTracks()[0];
+        function capture() {
+          render(frame / fps);
+          if (track.requestFrame) track.requestFrame();
+          frame += 1;
+          if (frame < maxFrames) window.setTimeout(capture, 1000 / fps);
+          else window.setTimeout(() => recorder.stop(), 350);
+        }
+        capture();
+      });
+    </script>
+  </body>
+</html>
