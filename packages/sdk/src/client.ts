@@ -3,7 +3,9 @@ import type {
   AuthSession,
   CourseSummary,
   CreateCourseRequest,
+  InviteMemberRequest,
   LoginRequest,
+  OrganizationMember,
   OrganizationOnboardingRequest,
   OrganizationOnboardingStatus,
   OrganizationProfile,
@@ -54,6 +56,17 @@ export class EduosClient {
 
   async createCourse(payload: CreateCourseRequest): Promise<ApiResponse<CourseSummary>> {
     return this.request<CourseSummary>("/api/v1/courses", {
+      body: JSON.stringify(payload),
+      method: "POST",
+    });
+  }
+
+  async listMembers(): Promise<ApiResponse<OrganizationMember[]>> {
+    return this.request<OrganizationMember[]>("/api/v1/users");
+  }
+
+  async inviteMember(payload: InviteMemberRequest): Promise<ApiResponse<OrganizationMember>> {
+    return this.request<OrganizationMember>("/api/v1/users/invitations", {
       body: JSON.stringify(payload),
       method: "POST",
     });
