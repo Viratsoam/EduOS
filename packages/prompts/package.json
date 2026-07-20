@@ -1,0 +1,12 @@
+{
+  "name": "@eduos/prompts",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "build": "echo \"@eduos/prompts is not scaffolded yet\"",
+    "dev": "echo \"@eduos/prompts is not scaffolded yet\"",
+    "lint": "echo \"@eduos/prompts is not scaffolded yet\"",
+    "test": "echo \"@eduos/prompts is not scaffolded yet\"",
+    "typecheck": "echo \"@eduos/prompts is not scaffolded yet\""
+  }
+}

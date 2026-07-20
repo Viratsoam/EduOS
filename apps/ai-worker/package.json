@@ -1,0 +1,12 @@
+{
+  "name": "@eduos/ai-worker",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "build": "echo \"@eduos/ai-worker is not scaffolded yet\"",
+    "dev": "echo \"@eduos/ai-worker is not scaffolded yet\"",
+    "lint": "echo \"@eduos/ai-worker is not scaffolded yet\"",
+    "test": "echo \"@eduos/ai-worker is not scaffolded yet\"",
+    "typecheck": "echo \"@eduos/ai-worker is not scaffolded yet\""
+  }
+}

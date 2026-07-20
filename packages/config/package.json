@@ -1,0 +1,12 @@
+{
+  "name": "@eduos/config",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "build": "echo \"@eduos/config is not scaffolded yet\"",
+    "dev": "echo \"@eduos/config is not scaffolded yet\"",
+    "lint": "echo \"@eduos/config is not scaffolded yet\"",
+    "test": "echo \"@eduos/config is not scaffolded yet\"",
+    "typecheck": "echo \"@eduos/config is not scaffolded yet\""
+  }
+}

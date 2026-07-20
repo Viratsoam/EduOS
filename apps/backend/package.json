@@ -1,0 +1,12 @@
+{
+  "name": "@eduos/backend",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "build": "echo \"@eduos/backend is not scaffolded yet\"",
+    "dev": "echo \"@eduos/backend is not scaffolded yet\"",
+    "lint": "echo \"@eduos/backend is not scaffolded yet\"",
+    "test": "echo \"@eduos/backend is not scaffolded yet\"",
+    "typecheck": "echo \"@eduos/backend is not scaffolded yet\""
+  }
+}
