@@ -3,8 +3,10 @@ import { ConfigModule } from "@nestjs/config";
 import { APP_GUARD } from "@nestjs/core";
 import { PermissionsGuard } from "./common/guards/permissions.guard";
 import { AiModule } from "./modules/ai/ai.module";
+import { AuthModule } from "./modules/auth/auth.module";
 import { CoursesModule } from "./modules/courses/courses.module";
 import { HealthModule } from "./modules/health/health.module";
+import { OrganizationsModule } from "./modules/organizations/organizations.module";
 
 @Module({
   imports: [
@@ -12,6 +14,8 @@ import { HealthModule } from "./modules/health/health.module";
       isGlobal: true,
     }),
     HealthModule,
+    OrganizationsModule,
+    AuthModule,
     CoursesModule,
     AiModule,
   ],
