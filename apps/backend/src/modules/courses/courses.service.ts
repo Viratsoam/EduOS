@@ -12,6 +12,6 @@ export class CoursesService {
   }
 
   createCourse(dto: CreateCourseDto) {
-    return this.coursesRepository.create(demoTenantContext, dto.title);
+    return this.coursesRepository.create(demoTenantContext, dto);
   }
 }

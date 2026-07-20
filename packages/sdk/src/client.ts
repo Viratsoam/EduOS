@@ -2,6 +2,7 @@ import type {
   ApiResponse,
   AuthSession,
   CourseSummary,
+  CreateCourseRequest,
   LoginRequest,
   OrganizationOnboardingRequest,
   OrganizationOnboardingStatus,
@@ -49,6 +50,13 @@ export class EduosClient {
 
   async listCourses(): Promise<ApiResponse<CourseSummary[]>> {
     return this.request<CourseSummary[]>("/api/v1/courses");
+  }
+
+  async createCourse(payload: CreateCourseRequest): Promise<ApiResponse<CourseSummary>> {
+    return this.request<CourseSummary>("/api/v1/courses", {
+      body: JSON.stringify(payload),
+      method: "POST",
+    });
   }
 
   private async request<TData>(path: string, init?: RequestInit): Promise<ApiResponse<TData>> {

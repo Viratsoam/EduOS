@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState, type ReactNode } from "react";
+import { useMemo, useState, type FormEvent, type ReactNode } from "react";
 import type { OrganizationOnboardingStep } from "@eduos/types";
 import { Badge, Button, MetricCard } from "@eduos/ui";
 import {
@@ -14,6 +14,7 @@ import {
   ChevronRight,
   Clock3,
   ClipboardCheck,
+  Database,
   FileCheck2,
   GraduationCap,
   KeyRound,
@@ -22,6 +23,7 @@ import {
   MessageSquareText,
   Mic2,
   Play,
+  Plus,
   Search,
   ShieldCheck,
   Sparkles,
@@ -31,6 +33,19 @@ import {
 } from "lucide-react";
 
 type Workspace = "overview" | "onboarding" | "courses" | "ai" | "live" | "analytics";
+
+type DemoCourse = {
+  aiStatus: "Indexed" | "Indexing" | "Needs material";
+  batch: string;
+  completion: number;
+  description: string;
+  enrolled: number;
+  lessons: number;
+  level: string;
+  subject: string;
+  title: string;
+  tutorSessions: number;
+};
 
 const workspaces: Array<{ id: Workspace; icon: ReactNode; label: string }> = [
   { id: "overview", icon: <Activity size={16} aria-hidden />, label: "Overview" },
@@ -68,12 +83,16 @@ const metrics = [
   },
 ];
 
-const courses = [
+const initialCourses: DemoCourse[] = [
   {
     aiStatus: "Indexed",
     batch: "JEE Alpha",
     completion: 74,
+    description: "Mechanics, waves, electricity, and modern physics foundation.",
+    enrolled: 428,
     lessons: 42,
+    level: "Senior secondary",
+    subject: "Physics",
     title: "Physics Foundations",
     tutorSessions: 1820,
   },
@@ -81,7 +100,11 @@ const courses = [
     aiStatus: "Indexing",
     batch: "Grade 10 Core",
     completion: 61,
+    description: "Practice-first algebra path with assignments and analytics.",
+    enrolled: 316,
     lessons: 36,
+    level: "Grade 10",
+    subject: "Mathematics",
     title: "Algebra Mastery",
     tutorSessions: 1214,
   },
@@ -89,7 +112,11 @@ const courses = [
     aiStatus: "Needs material",
     batch: "NEET Bridge",
     completion: 48,
+    description: "Bridge course for chemistry fundamentals and revision.",
+    enrolled: 184,
     lessons: 28,
+    level: "Entrance prep",
+    subject: "Chemistry",
     title: "Chemistry Essentials",
     tutorSessions: 864,
   },
@@ -182,6 +209,7 @@ export default function HomePage() {
   const [workspace, setWorkspace] = useState<Workspace>("overview");
   const [signedIn, setSignedIn] = useState(false);
   const [aiPolicyReady, setAiPolicyReady] = useState(false);
+  const [courseItems, setCourseItems] = useState<DemoCourse[]>(initialCourses);
   const currentWorkspaceLabel = useMemo(
     () => workspaces.find((item) => item.id === workspace)?.label ?? "Overview",
     [workspace],
@@ -306,7 +334,12 @@ export default function HomePage() {
                   signedIn={signedIn}
                 />
               ) : null}
-              {workspace === "courses" ? <CoursesPanel /> : null}
+              {workspace === "courses" ? (
+                <CoursesPanel
+                  courses={courseItems}
+                  onCreateCourse={(course) => setCourseItems((items) => [course, ...items])}
+                />
+              ) : null}
               {workspace === "ai" ? <AiPanel /> : null}
               {workspace === "live" ? <LivePanel /> : null}
               {workspace === "analytics" ? <AnalyticsPanel /> : null}
@@ -500,37 +533,105 @@ function OnboardingPanel({
   );
 }
 
-function CoursesPanel() {
+function CoursesPanel({
+  courses,
+  onCreateCourse,
+}: {
+  courses: DemoCourse[];
+  onCreateCourse: (course: DemoCourse) => void;
+}) {
+  const [title, setTitle] = useState("Biology Foundations");
+  const [subject, setSubject] = useState("Biology");
+  const [batch, setBatch] = useState("NEET Alpha");
+  const [level, setLevel] = useState("Entrance prep");
+
+  function handleCreateCourse(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+
+    const cleanTitle = title.trim();
+    const cleanSubject = subject.trim();
+    const cleanBatch = batch.trim();
+    const cleanLevel = level.trim();
+
+    if (!cleanTitle || !cleanSubject || !cleanBatch || !cleanLevel) {
+      return;
+    }
+
+    onCreateCourse({
+      aiStatus: "Needs material",
+      batch: cleanBatch,
+      completion: 0,
+      description: `${cleanSubject} course for ${cleanBatch}.`,
+      enrolled: 0,
+      lessons: 0,
+      level: cleanLevel,
+      subject: cleanSubject,
+      title: cleanTitle,
+      tutorSessions: 0,
+    });
+
+    setTitle("");
+    setSubject("");
+    setBatch("");
+    setLevel("");
+  }
+
   return (
-    <section className="rounded-md border border-zinc-200 bg-white p-4 shadow-sm">
-      <div className="flex flex-col gap-3 border-b border-zinc-200 pb-4 md:flex-row md:items-center md:justify-between">
-        <div>
-          <h2 className="text-base font-semibold">Course operations</h2>
-          <p className="mt-1 text-sm text-zinc-500">Courses connect lessons, batches, assignments, and approved AI sources.</p>
+    <section className="space-y-6">
+      <div className="rounded-md border border-zinc-200 bg-white p-4 shadow-sm">
+        <div className="flex flex-col gap-3 border-b border-zinc-200 pb-4 md:flex-row md:items-center md:justify-between">
+          <div>
+            <h2 className="text-base font-semibold">Course operations</h2>
+            <p className="mt-1 text-sm text-zinc-500">Courses connect lessons, batches, assignments, and approved AI sources.</p>
+          </div>
+          <div className="flex flex-wrap gap-2">
+            <Button icon={<Database size={16} aria-hidden />} variant="secondary">
+              API ready
+            </Button>
+            <Button icon={<UploadCloud size={16} aria-hidden />} variant="secondary">
+              Upload material
+            </Button>
+          </div>
         </div>
-        <Button icon={<UploadCloud size={16} aria-hidden />} variant="secondary">
-          Upload material
-        </Button>
+
+        <form className="mt-4 grid gap-3 xl:grid-cols-[1fr_0.85fr_0.85fr_0.85fr_auto]" onSubmit={handleCreateCourse}>
+          <CourseInput label="Course" onChange={setTitle} value={title} />
+          <CourseInput label="Subject" onChange={setSubject} value={subject} />
+          <CourseInput label="Batch" onChange={setBatch} value={batch} />
+          <CourseInput label="Level" onChange={setLevel} value={level} />
+          <Button className="h-auto min-h-10 self-end" icon={<Plus size={16} aria-hidden />} type="submit">
+            Create
+          </Button>
+        </form>
       </div>
 
-      <div className="mt-4 grid gap-4 xl:grid-cols-3">
+      <div className="grid gap-4 xl:grid-cols-3">
         {courses.map((course) => (
-          <article className="rounded-md border border-zinc-200 p-4" key={course.title}>
+          <article className="rounded-md border border-zinc-200 bg-white p-4 shadow-sm" key={`${course.title}-${course.batch}`}>
             <div className="flex items-start justify-between gap-3">
-              <div>
-                <h3 className="text-sm font-semibold">{course.title}</h3>
-                <p className="mt-1 text-sm text-zinc-500">{course.batch}</p>
+              <div className="min-w-0">
+                <h3 className="break-words text-sm font-semibold">{course.title}</h3>
+                <p className="mt-1 text-sm text-zinc-500">{course.subject} • {course.batch}</p>
               </div>
               <Badge tone={course.aiStatus === "Indexed" ? "green" : course.aiStatus === "Indexing" ? "blue" : "red"}>
                 {course.aiStatus}
               </Badge>
             </div>
+            <p className="mt-3 line-clamp-2 text-sm leading-6 text-zinc-600">{course.description}</p>
             <div className="mt-5 space-y-3">
               <ProgressRow label="Completion" value={course.completion} />
-              <div className="grid grid-cols-2 gap-3 text-sm">
+              <div className="grid grid-cols-2 gap-3 text-sm sm:grid-cols-4 xl:grid-cols-2 2xl:grid-cols-4">
                 <div className="rounded bg-zinc-50 p-3">
                   <p className="text-zinc-500">Lessons</p>
                   <p className="mt-1 font-semibold">{course.lessons}</p>
+                </div>
+                <div className="rounded bg-zinc-50 p-3">
+                  <p className="text-zinc-500">Students</p>
+                  <p className="mt-1 font-semibold">{course.enrolled}</p>
+                </div>
+                <div className="rounded bg-zinc-50 p-3">
+                  <p className="text-zinc-500">Level</p>
+                  <p className="mt-1 truncate font-semibold">{course.level}</p>
                 </div>
                 <div className="rounded bg-zinc-50 p-3">
                   <p className="text-zinc-500">AI sessions</p>
@@ -719,6 +820,27 @@ function FieldPreview({ label, value }: { label: string; value: string }) {
       <span className="text-zinc-500">{label}</span>
       <span className="min-w-0 break-words font-medium text-zinc-900 sm:text-right">{value}</span>
     </div>
+  );
+}
+
+function CourseInput({
+  label,
+  onChange,
+  value,
+}: {
+  label: string;
+  onChange: (value: string) => void;
+  value: string;
+}) {
+  return (
+    <label className="grid gap-1 text-sm">
+      <span className="text-xs font-medium text-zinc-500">{label}</span>
+      <input
+        className="h-10 min-w-0 rounded-md border border-zinc-300 bg-white px-3 text-sm text-zinc-950 outline-none transition placeholder:text-zinc-400 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-100"
+        onChange={(event) => onChange(event.target.value)}
+        value={value}
+      />
+    </label>
   );
 }
 
