@@ -10,10 +10,18 @@
     "dev": "pnpm -r --parallel dev",
     "lint": "pnpm -r lint",
     "test": "pnpm -r test",
-    "typecheck": "pnpm -r typecheck"
+    "typecheck": "pnpm -r typecheck",
+    "format": "prettier --write .",
+    "format:check": "prettier --check ."
+  },
+  "devDependencies": {
+    "@types/node": "^22.10.2",
+    "eslint": "^9.17.0",
+    "prettier": "^3.4.2",
+    "typescript": "^5.7.2"
   },
   "engines": {
-    "node": ">=22.0.0",
+    "node": ">=20.10.0",
     "pnpm": ">=9.0.0"
   }
 }

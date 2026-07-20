@@ -2,11 +2,16 @@
   "name": "@eduos/config",
   "version": "0.1.0",
   "private": true,
+  "type": "module",
+  "exports": {
+    "./eslint": "./eslint.config.mjs",
+    "./tsconfig/base": "./tsconfig/base.json"
+  },
   "scripts": {
-    "build": "echo \"@eduos/config is not scaffolded yet\"",
-    "dev": "echo \"@eduos/config is not scaffolded yet\"",
-    "lint": "echo \"@eduos/config is not scaffolded yet\"",
-    "test": "echo \"@eduos/config is not scaffolded yet\"",
-    "typecheck": "echo \"@eduos/config is not scaffolded yet\""
+    "build": "echo \"@eduos/config contains shared config only\"",
+    "dev": "echo \"@eduos/config contains shared config only\"",
+    "lint": "echo \"@eduos/config contains shared config only\"",
+    "test": "node --test",
+    "typecheck": "echo \"@eduos/config contains shared config only\""
   }
 }

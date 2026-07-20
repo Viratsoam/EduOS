@@ -3,10 +3,28 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "build": "echo \"@eduos/web is not scaffolded yet\"",
-    "dev": "echo \"@eduos/web is not scaffolded yet\"",
-    "lint": "echo \"@eduos/web is not scaffolded yet\"",
-    "test": "echo \"@eduos/web is not scaffolded yet\"",
-    "typecheck": "echo \"@eduos/web is not scaffolded yet\""
+    "build": "next build",
+    "dev": "next dev --hostname 127.0.0.1 --port 3000",
+    "lint": "next typegen && tsc -p tsconfig.json --noEmit",
+    "test": "node --test",
+    "typecheck": "next typegen && tsc -p tsconfig.json --noEmit"
+  },
+  "dependencies": {
+    "@eduos/sdk": "workspace:*",
+    "@eduos/types": "workspace:*",
+    "@eduos/ui": "workspace:*",
+    "lucide-react": "^0.469.0",
+    "next": "^15.1.0",
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0",
+    "socket.io-client": "^4.8.1",
+    "zustand": "^5.0.2"
+  },
+  "devDependencies": {
+    "@types/react": "^19.0.2",
+    "@types/react-dom": "^19.0.2",
+    "tailwindcss": "^3.4.17",
+    "postcss": "^8.4.49",
+    "autoprefixer": "^10.4.20"
   }
 }

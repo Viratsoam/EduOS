@@ -3,10 +3,21 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "build": "echo \"@eduos/ai-worker is not scaffolded yet\"",
-    "dev": "echo \"@eduos/ai-worker is not scaffolded yet\"",
-    "lint": "echo \"@eduos/ai-worker is not scaffolded yet\"",
-    "test": "echo \"@eduos/ai-worker is not scaffolded yet\"",
-    "typecheck": "echo \"@eduos/ai-worker is not scaffolded yet\""
+    "build": "tsc -b tsconfig.json --pretty false",
+    "dev": "tsx watch src/main.ts",
+    "lint": "tsc -b tsconfig.json --pretty false",
+    "start": "node dist/main.js",
+    "test": "node --test",
+    "typecheck": "tsc -b tsconfig.json --pretty false"
+  },
+  "dependencies": {
+    "@eduos/prompts": "workspace:*",
+    "@eduos/shared": "workspace:*",
+    "@eduos/types": "workspace:*",
+    "bullmq": "^5.34.2",
+    "ioredis": "^5.4.2"
+  },
+  "devDependencies": {
+    "tsx": "^4.19.2"
   }
 }

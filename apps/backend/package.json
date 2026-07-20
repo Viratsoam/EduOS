@@ -3,10 +3,29 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "build": "echo \"@eduos/backend is not scaffolded yet\"",
-    "dev": "echo \"@eduos/backend is not scaffolded yet\"",
-    "lint": "echo \"@eduos/backend is not scaffolded yet\"",
-    "test": "echo \"@eduos/backend is not scaffolded yet\"",
-    "typecheck": "echo \"@eduos/backend is not scaffolded yet\""
+    "build": "tsc -b tsconfig.json --pretty false",
+    "dev": "nest start --watch",
+    "lint": "tsc -b tsconfig.json --pretty false",
+    "start": "node dist/main.js",
+    "test": "node --test",
+    "typecheck": "tsc -b tsconfig.json --pretty false"
+  },
+  "dependencies": {
+    "@eduos/prompts": "workspace:*",
+    "@eduos/shared": "workspace:*",
+    "@eduos/types": "workspace:*",
+    "@nestjs/common": "^11.0.0",
+    "@nestjs/config": "^4.0.0",
+    "@nestjs/core": "^11.0.0",
+    "@nestjs/platform-express": "^11.0.0",
+    "@nestjs/swagger": "^11.0.0",
+    "class-transformer": "^0.5.1",
+    "class-validator": "^0.14.1",
+    "reflect-metadata": "^0.2.2",
+    "rxjs": "^7.8.1"
+  },
+  "devDependencies": {
+    "@types/express": "^5.0.0",
+    "@nestjs/cli": "^11.0.0"
   }
 }

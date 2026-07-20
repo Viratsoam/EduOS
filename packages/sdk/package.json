@@ -2,11 +2,23 @@
   "name": "@eduos/sdk",
   "version": "0.1.0",
   "private": true,
+  "type": "module",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    }
+  },
   "scripts": {
-    "build": "echo \"@eduos/sdk is not scaffolded yet\"",
-    "dev": "echo \"@eduos/sdk is not scaffolded yet\"",
-    "lint": "echo \"@eduos/sdk is not scaffolded yet\"",
-    "test": "echo \"@eduos/sdk is not scaffolded yet\"",
-    "typecheck": "echo \"@eduos/sdk is not scaffolded yet\""
+    "build": "tsc -b tsconfig.json --pretty false",
+    "dev": "tsc -b tsconfig.json --watch",
+    "lint": "tsc -b tsconfig.json --pretty false",
+    "test": "node --test",
+    "typecheck": "tsc -b tsconfig.json --pretty false"
+  },
+  "dependencies": {
+    "@eduos/types": "workspace:*"
   }
 }

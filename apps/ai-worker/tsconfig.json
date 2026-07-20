@@ -1,0 +1,16 @@
+{
+  "extends": "../../tsconfig.base.json",
+  "compilerOptions": {
+    "composite": true,
+    "module": "NodeNext",
+    "moduleResolution": "NodeNext",
+    "rootDir": "src",
+    "outDir": "dist"
+  },
+  "include": ["src/**/*.ts"],
+  "references": [
+    { "path": "../../packages/prompts" },
+    { "path": "../../packages/shared" },
+    { "path": "../../packages/types" }
+  ]
+}

@@ -211,7 +211,7 @@ Phase 4 moves toward a global education network:
 
 ## Getting Started
 
-This repository is currently in architecture setup mode. Application scaffolds will be added feature by feature using the rules in `MASTER_PROMPT.md` and `TASK_PROMPT.md`.
+This repository now contains the first implementation scaffold for the EduOS monorepo.
 
 Expected local services:
 
@@ -223,6 +223,34 @@ Expected local services:
 Expected package manager:
 
 - pnpm
+
+Install dependencies:
+
+```bash
+pnpm install
+```
+
+Start local infrastructure:
+
+```bash
+docker compose -f infra/docker/docker-compose.yml up
+```
+
+Run the apps:
+
+```bash
+pnpm --filter @eduos/web dev
+pnpm --filter @eduos/backend dev
+pnpm --filter @eduos/ai-worker dev
+```
+
+Validate the workspace:
+
+```bash
+pnpm typecheck
+pnpm lint
+pnpm test
+```
 
 ## Contributing
 

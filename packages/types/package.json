@@ -2,11 +2,20 @@
   "name": "@eduos/types",
   "version": "0.1.0",
   "private": true,
+  "type": "module",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    }
+  },
   "scripts": {
-    "build": "echo \"@eduos/types is not scaffolded yet\"",
-    "dev": "echo \"@eduos/types is not scaffolded yet\"",
-    "lint": "echo \"@eduos/types is not scaffolded yet\"",
-    "test": "echo \"@eduos/types is not scaffolded yet\"",
-    "typecheck": "echo \"@eduos/types is not scaffolded yet\""
+    "build": "tsc -b tsconfig.json --pretty false",
+    "dev": "tsc -b tsconfig.json --watch",
+    "lint": "tsc -b tsconfig.json --pretty false",
+    "test": "node --test",
+    "typecheck": "tsc -b tsconfig.json --pretty false"
   }
 }
