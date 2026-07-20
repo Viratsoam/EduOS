@@ -1,6 +1,7 @@
 "use client";
 
 import { useMemo, useState, type ReactNode } from "react";
+import type { OrganizationOnboardingStep } from "@eduos/types";
 import { Badge, Button, MetricCard } from "@eduos/ui";
 import {
   Activity,
@@ -12,8 +13,10 @@ import {
   CheckCircle2,
   ChevronRight,
   Clock3,
+  ClipboardCheck,
   FileCheck2,
   GraduationCap,
+  KeyRound,
   Layers3,
   LibraryBig,
   MessageSquareText,
@@ -27,10 +30,11 @@ import {
   Video,
 } from "lucide-react";
 
-type Workspace = "overview" | "courses" | "ai" | "live" | "analytics";
+type Workspace = "overview" | "onboarding" | "courses" | "ai" | "live" | "analytics";
 
 const workspaces: Array<{ id: Workspace; icon: ReactNode; label: string }> = [
   { id: "overview", icon: <Activity size={16} aria-hidden />, label: "Overview" },
+  { id: "onboarding", icon: <ClipboardCheck size={16} aria-hidden />, label: "Onboarding" },
   { id: "courses", icon: <BookOpen size={16} aria-hidden />, label: "Courses" },
   { id: "ai", icon: <BrainCircuit size={16} aria-hidden />, label: "AI Tutor" },
   { id: "live", icon: <Video size={16} aria-hidden />, label: "Live Class" },
@@ -145,7 +149,7 @@ const skillData = [
 ];
 
 const launchReadiness = [
-  { label: "RBAC foundation", value: 82 },
+  { label: "Auth and onboarding", value: 86 },
   { label: "Course workflows", value: 68 },
   { label: "AI grounding", value: 74 },
   { label: "Analytics layer", value: 59 },
@@ -158,12 +162,38 @@ const classControls: Array<{ icon: ReactNode; label: string; meta: string }> = [
   { icon: <Mic2 size={16} aria-hidden />, label: "AI summary", meta: "Drafting live" },
 ];
 
+const onboardingSteps: Array<{ id: OrganizationOnboardingStep; label: string; meta: string }> = [
+  { id: "school_profile", label: "School profile", meta: "Brand, academic year, timezone" },
+  { id: "admin_team", label: "Admin team", meta: "Owner and coordinator accounts" },
+  { id: "role_mapping", label: "Role mapping", meta: "Admins, teachers, assistants, students" },
+  { id: "course_seed", label: "Course seed", meta: "Initial batches and subjects" },
+  { id: "ai_policy", label: "AI policy", meta: "Grounding, refusal, citation settings" },
+  { id: "launch_review", label: "Launch review", meta: "Final readiness check" },
+];
+
+const roleAssignments = [
+  { count: 2, label: "Admins" },
+  { count: 18, label: "Teachers" },
+  { count: 6, label: "Assistants" },
+  { count: 1248, label: "Students" },
+];
+
 export default function HomePage() {
   const [workspace, setWorkspace] = useState<Workspace>("overview");
+  const [signedIn, setSignedIn] = useState(false);
+  const [aiPolicyReady, setAiPolicyReady] = useState(false);
   const currentWorkspaceLabel = useMemo(
     () => workspaces.find((item) => item.id === workspace)?.label ?? "Overview",
     [workspace],
   );
+  const completedOnboardingSteps = useMemo<OrganizationOnboardingStep[]>(
+    () =>
+      aiPolicyReady
+        ? ["school_profile", "admin_team", "role_mapping", "course_seed", "ai_policy"]
+        : ["school_profile", "admin_team", "role_mapping", "course_seed"],
+    [aiPolicyReady],
+  );
+  const onboardingProgress = aiPolicyReady ? 86 : 72;
 
   return (
     <main className="min-h-screen bg-[#f6f7f9] text-zinc-950">
@@ -267,13 +297,22 @@ export default function HomePage() {
           <div className="grid gap-6 p-4 sm:p-6 xl:grid-cols-[1fr_360px]">
             <div className="min-w-0 space-y-6">
               {workspace === "overview" ? <OverviewPanel /> : null}
+              {workspace === "onboarding" ? (
+                <OnboardingPanel
+                  completedSteps={completedOnboardingSteps}
+                  onCompletePolicy={() => setAiPolicyReady(true)}
+                  onSignIn={() => setSignedIn(true)}
+                  progress={onboardingProgress}
+                  signedIn={signedIn}
+                />
+              ) : null}
               {workspace === "courses" ? <CoursesPanel /> : null}
               {workspace === "ai" ? <AiPanel /> : null}
               {workspace === "live" ? <LivePanel /> : null}
               {workspace === "analytics" ? <AnalyticsPanel /> : null}
             </div>
 
-            <DemoRail />
+            <DemoRail completedSteps={completedOnboardingSteps.length} progress={onboardingProgress} />
           </div>
         </section>
       </div>
@@ -329,6 +368,135 @@ function OverviewPanel() {
         </div>
       </section>
     </>
+  );
+}
+
+function OnboardingPanel({
+  completedSteps,
+  onCompletePolicy,
+  onSignIn,
+  progress,
+  signedIn,
+}: {
+  completedSteps: OrganizationOnboardingStep[];
+  onCompletePolicy: () => void;
+  onSignIn: () => void;
+  progress: number;
+  signedIn: boolean;
+}) {
+  return (
+    <section className="grid min-w-0 gap-6 2xl:grid-cols-[0.95fr_1.05fr]">
+      <div className="min-w-0 rounded-md border border-zinc-200 bg-white p-4 shadow-sm">
+        <div className="flex flex-col gap-3 border-b border-zinc-200 pb-4 md:flex-row md:items-center md:justify-between">
+          <div className="min-w-0">
+            <h2 className="text-base font-semibold">Organization setup</h2>
+            <p className="mt-1 text-sm text-zinc-500">Vikas International Academy is preparing its first EduOS launch.</p>
+          </div>
+          <Badge className="shrink-0" tone={signedIn ? "green" : "red"}>
+            {signedIn ? "Session active" : "Sign-in needed"}
+          </Badge>
+        </div>
+
+        <div className="mt-4 grid min-w-0 gap-4 lg:grid-cols-2 2xl:grid-cols-1 min-[1680px]:grid-cols-2">
+          <div className="min-w-0 rounded-md border border-zinc-200 p-4">
+            <div className="flex items-center gap-2">
+              <KeyRound size={17} className="text-zinc-600" aria-hidden />
+              <h3 className="text-sm font-semibold">Admin sign-in</h3>
+            </div>
+            <div className="mt-4 grid gap-3 text-sm">
+              <FieldPreview label="Email" value="admin@via.edu" />
+              <FieldPreview label="School slug" value="via" />
+              <FieldPreview label="Role" value="Organization owner" />
+            </div>
+            <Button
+              className="mt-4 w-full"
+              disabled={signedIn}
+              icon={<ShieldCheck size={16} aria-hidden />}
+              onClick={onSignIn}
+            >
+              {signedIn ? "Signed in" : "Start session"}
+            </Button>
+          </div>
+
+          <div className="min-w-0 rounded-md border border-zinc-200 p-4">
+            <div className="flex flex-wrap items-center justify-between gap-3">
+              <h3 className="text-sm font-semibold">School profile</h3>
+              <Badge tone="blue">Growth plan</Badge>
+            </div>
+            <div className="mt-4 grid gap-3 text-sm">
+              <FieldPreview label="Academic year" value="2026-2027" />
+              <FieldPreview label="Timezone" value="Asia/Kolkata" />
+              <FieldPreview label="Contact" value="admin@via.edu" />
+            </div>
+          </div>
+        </div>
+
+        <div className="mt-5 rounded-md bg-zinc-50 p-4">
+          <div className="flex items-center justify-between gap-3">
+            <h3 className="text-sm font-semibold">Launch progress</h3>
+            <span className="text-sm text-zinc-500">{progress}%</span>
+          </div>
+          <div className="mt-3 h-2 overflow-hidden rounded-full bg-white">
+            <div className="h-full rounded-full bg-emerald-500" style={{ width: `${progress}%` }} />
+          </div>
+          <div className="mt-4 grid gap-3 sm:grid-cols-2 2xl:grid-cols-4">
+            {roleAssignments.map((assignment) => (
+              <div className="rounded border border-zinc-200 bg-white p-3" key={assignment.label}>
+                <p className="text-xs text-zinc-500">{assignment.label}</p>
+                <p className="mt-1 text-lg font-semibold">{assignment.count}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+
+      <div className="min-w-0 rounded-md border border-zinc-200 bg-white p-4 shadow-sm">
+        <div className="flex flex-wrap items-center justify-between gap-3">
+          <h2 className="text-base font-semibold">Onboarding checklist</h2>
+          <Badge tone={progress > 80 ? "green" : "blue"}>{progress > 80 ? "Launch review" : "In progress"}</Badge>
+        </div>
+        <div className="mt-4 grid gap-3">
+          {onboardingSteps.map((step, index) => {
+            const isComplete = completedSteps.includes(step.id);
+            const isNext = !isComplete && step.id === (progress > 80 ? "launch_review" : "ai_policy");
+
+            return (
+              <div
+                className={[
+                  "grid grid-cols-[32px_1fr] gap-3 rounded-md border p-3",
+                  isComplete ? "border-emerald-200 bg-emerald-50" : "border-zinc-200",
+                ].join(" ")}
+                key={step.id}
+              >
+                <span
+                  className={[
+                    "grid h-8 w-8 place-items-center rounded text-xs font-semibold",
+                    isComplete ? "bg-emerald-600 text-white" : "bg-zinc-100 text-zinc-600",
+                  ].join(" ")}
+                >
+                  {isComplete ? <CheckCircle2 size={16} aria-hidden /> : index + 1}
+                </span>
+                <div className="min-w-0">
+                  <div className="flex flex-wrap items-center gap-2">
+                    <p className="text-sm font-semibold">{step.label}</p>
+                    {isNext ? <Badge tone="blue">Next</Badge> : null}
+                  </div>
+                  <p className="mt-1 text-sm text-zinc-500">{step.meta}</p>
+                </div>
+              </div>
+            );
+          })}
+        </div>
+        <Button
+          className="mt-4 w-full"
+          disabled={completedSteps.includes("ai_policy")}
+          icon={<Sparkles size={16} aria-hidden />}
+          onClick={onCompletePolicy}
+        >
+          {completedSteps.includes("ai_policy") ? "AI policy ready" : "Approve AI policy"}
+        </Button>
+      </div>
+    </section>
   );
 }
 
@@ -496,7 +664,7 @@ function AnalyticsPanel() {
   );
 }
 
-function DemoRail() {
+function DemoRail({ completedSteps, progress }: { completedSteps: number; progress: number }) {
   return (
     <aside className="space-y-6">
       <section className="rounded-md border border-zinc-200 bg-white p-4 shadow-sm">
@@ -523,7 +691,7 @@ function DemoRail() {
           <h2 className="text-base font-semibold">Implementation map</h2>
         </div>
         <div className="mt-4 space-y-3 text-sm">
-          {["Next.js demo shell", "NestJS API scaffold", "AI worker queue", "Shared SDK and types"].map((item) => (
+          {["Next.js demo shell", "NestJS API scaffold", "Auth and onboarding", "AI worker queue", "Shared SDK and types"].map((item) => (
             <div className="flex items-center justify-between" key={item}>
               <span className="text-zinc-600">{item}</span>
               <CheckCircle2 size={16} className="text-emerald-600" aria-hidden />
@@ -535,13 +703,22 @@ function DemoRail() {
       <section className="rounded-md border border-zinc-200 bg-white p-4 shadow-sm">
         <div className="flex items-center gap-2">
           <GraduationCap size={18} className="text-zinc-500" aria-hidden />
-          <h2 className="text-base font-semibold">Next product slice</h2>
+          <h2 className="text-base font-semibold">Current product slice</h2>
         </div>
         <p className="mt-3 text-sm leading-6 text-zinc-600">
-          Authentication, organization onboarding, and persisted course creation should land before real AI ingestion.
+          Organization onboarding is {progress}% ready with {completedSteps} setup steps complete. Persisted course creation comes next.
         </p>
       </section>
     </aside>
+  );
+}
+
+function FieldPreview({ label, value }: { label: string; value: string }) {
+  return (
+    <div className="grid min-w-0 gap-1 rounded bg-zinc-50 px-3 py-2 sm:grid-cols-[minmax(92px,0.45fr)_minmax(0,1fr)] sm:items-center">
+      <span className="text-zinc-500">{label}</span>
+      <span className="min-w-0 break-words font-medium text-zinc-900 sm:text-right">{value}</span>
+    </div>
   );
 }
 

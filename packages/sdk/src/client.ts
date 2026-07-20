@@ -1,4 +1,12 @@
-import type { ApiResponse, CourseSummary } from "@eduos/types";
+import type {
+  ApiResponse,
+  AuthSession,
+  CourseSummary,
+  LoginRequest,
+  OrganizationOnboardingRequest,
+  OrganizationOnboardingStatus,
+  OrganizationProfile,
+} from "@eduos/types";
 
 export interface EduosClientOptions {
   baseUrl: string;
@@ -7,6 +15,37 @@ export interface EduosClientOptions {
 
 export class EduosClient {
   constructor(private readonly options: EduosClientOptions) {}
+
+  async login(payload: LoginRequest): Promise<ApiResponse<AuthSession>> {
+    return this.request<AuthSession>("/api/v1/auth/login", {
+      body: JSON.stringify(payload),
+      method: "POST",
+    });
+  }
+
+  async me(): Promise<ApiResponse<AuthSession>> {
+    return this.request<AuthSession>("/api/v1/auth/me");
+  }
+
+  async getCurrentOrganization(): Promise<ApiResponse<OrganizationProfile>> {
+    return this.request<OrganizationProfile>("/api/v1/organizations/current");
+  }
+
+  async getOnboardingStatus(): Promise<ApiResponse<OrganizationOnboardingStatus>> {
+    return this.request<OrganizationOnboardingStatus>("/api/v1/organizations/onboarding");
+  }
+
+  async onboardOrganization(
+    payload: OrganizationOnboardingRequest,
+  ): Promise<ApiResponse<{ onboarding: OrganizationOnboardingStatus; organization: OrganizationProfile }>> {
+    return this.request<{ onboarding: OrganizationOnboardingStatus; organization: OrganizationProfile }>(
+      "/api/v1/organizations/onboarding",
+      {
+        body: JSON.stringify(payload),
+        method: "POST",
+      },
+    );
+  }
 
   async listCourses(): Promise<ApiResponse<CourseSummary[]>> {
     return this.request<CourseSummary[]>("/api/v1/courses");
